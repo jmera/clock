@@ -59,7 +59,7 @@ always @ (posedge clk) begin // or negedge reset
     elapsed_seconds <= 0;
   end
 
-  if (cycles == 50_000_000) begin
+  if (cycles == (50_000_000 / 60 / 60)) begin
     // one second has passed
     elapsed_seconds <= elapsed_seconds + 1;
     // start counting the cycles for the next second
@@ -164,12 +164,7 @@ always @ (elapsed_seconds) begin
       seg_data3 = 7'b0100100;
   endcase
 
-  current_hour <= (elapsed_seconds / 3_600);
-  if (switch) begin
-    current_hour <= current_hour % 12;
-  end
-  else
-    current_hour <= current_hour % 24;
+  current_hour <= (elapsed_seconds / 3_600) % 12;
 
   // Calculate the FIRST 'H' in HH
   // For example: 19 % 10 = 9
