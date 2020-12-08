@@ -1,6 +1,7 @@
 module clock (
   input clk,
   input reset,
+  input switch,
   output [6:0] led_a,
   output [6:0] led_b,
   output [6:0] led_c,
@@ -58,6 +59,9 @@ always @ (posedge clk) begin // or negedge reset
     elapsed_seconds <= 0;
   end
 
+  if (elapsed_seconds == 86_400)
+    elapsed_seconds <= 0;
+
   if (cycles == (50_000_000 / 60 / 60)) begin
     // one second has passed
     elapsed_seconds <= elapsed_seconds + 1;
@@ -70,9 +74,6 @@ always @ (posedge clk) begin // or negedge reset
 end
 
 always @ (elapsed_seconds) begin
-  if (elapsed_seconds == 86_400)
-    elapsed_seconds <= 0;
-
   // calculate SS as a decimal digit (0-59)
   current_second <= elapsed_seconds % 60;
 
