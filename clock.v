@@ -1,6 +1,7 @@
 module clock (
   input clk,
   input reset,
+  input switch,
   output [6:0] led_a,
   output [6:0] led_b,
   output [6:0] led_c,
@@ -163,7 +164,12 @@ always @ (elapsed_seconds) begin
       seg_data3 = 7'b0100100;
   endcase
 
-  current_hour <= (elapsed_seconds / 3_600) % 24;
+  current_hour <= (elapsed_seconds / 3_600);
+  if (switch) begin
+    current_hour <= current_hour % 12;
+  end
+  else
+    current_hour <= current_hour % 24;
 
   // Calculate the FIRST 'H' in HH
   // For example: 19 % 10 = 9
