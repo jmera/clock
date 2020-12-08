@@ -22,15 +22,15 @@ reg [16:0] elapsed_seconds;
 
 // Represents the current second (the 'SS' part of our clock)
 // 01 - 59 => We need 8 bits to represent 60 digits (2 ^ 8 = 64)
-reg [7:0] seconds;
+reg [7:0] current_second;
 
 // Represents the current minute (the 'MM' part of our clock)
 // 01 - 59 => We need 8 bits to represent 60 digits (2 ^ 8 = 64)
-reg [7:0] minutes;
+reg [7:0] current_minute;
 
 // Represents the current hour (the 'HH' part of our clock)
 // 01 - 23 => We need 5 bits to represent 24 digits (2 ^ 5 = 32)
-reg [4:0] hours;
+reg [4:0] current_hour;
 
 // Represents the number of CPU cycles
 // On a 50MHz processor we perform 50_000_000 cycles per second
@@ -71,12 +71,12 @@ end
 
 always @ (elapsed_seconds) begin
   // calculate SS as a decimal digit (0-59)
-  seconds <= elapsed_seconds % 60;
+  current_second <= elapsed_seconds % 60;
 
   // Calculate the FIRST 'S' in SS
   // For example: 36 % 10 = 6
   // set seg_data0 to the proper binary representation of that number
-  case (seconds % 10)
+  case (current_second % 10)
     0:
       seg_data0 = 7'b0000001;
     1:
@@ -102,7 +102,7 @@ always @ (elapsed_seconds) begin
   // Calculate the SECOND 'S' in SS
   // For example: 36 / 10 = 3
   // set seg_data1 to the proper binary representation of that number
-  case (seconds / 10)
+  case (current_second / 10)
     0:
       seg_data1 = 7'b0000001;
     1:
@@ -117,12 +117,12 @@ always @ (elapsed_seconds) begin
       seg_data1 = 7'b0100100;
   endcase
 
-  minutes <= (elapsed_seconds / 60) % 60;
+  current_minute <= (elapsed_seconds / 60) % 60;
 
   // Calculate the FIRST 'M' in MM
   // For example: 25 % 10 = 5
   // set seg_data2 to the proper binary representation of that number
-  case (minutes % 10)
+  case (current_minute % 10)
     0:
       seg_data2 = 7'b0000001;
     1:
@@ -148,7 +148,7 @@ always @ (elapsed_seconds) begin
   // Calculate the SECOND 'M' in MM
   // For example: 25 / 10 = 2
   // set seg_data3 to the proper binary representation of that number
-  case (minutes / 10)
+  case (current_minute / 10)
     0:
       seg_data3 = 7'b0000001;
     1:
@@ -163,12 +163,12 @@ always @ (elapsed_seconds) begin
       seg_data3 = 7'b0100100;
   endcase
 
-  hours <= (elapsed_seconds / 3_600) % 24;
+  current_hour <= (elapsed_seconds / 3_600) % 24;
 
   // Calculate the FIRST 'H' in HH
   // For example: 19 % 10 = 9
   // set seg_data4 to the proper binary representation of that number
-  case (hours % 10)
+  case (current_hour % 10)
     0:
       seg_data4 = 7'b0000001;
     1:
@@ -194,7 +194,7 @@ always @ (elapsed_seconds) begin
   // Calculate the SECOND 'H' in HH
   // For example: 21 / 10 = 2
   // set seg_data5 to the proper binary representation of that number
-  case (hours / 10)
+  case (current_hour / 10)
     0:
       seg_data5 = 7'b0000001;
     1:
