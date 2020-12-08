@@ -70,6 +70,9 @@ always @ (posedge clk) begin // or negedge reset
 end
 
 always @ (elapsed_seconds) begin
+  if (elapsed_seconds == 86_400)
+    elapsed_seconds <= 0;
+
   // calculate SS as a decimal digit (0-59)
   current_second <= elapsed_seconds % 60;
 
@@ -163,7 +166,11 @@ always @ (elapsed_seconds) begin
       seg_data3 = 7'b0100100;
   endcase
 
-  current_hour <= (elapsed_seconds / 3_600) % 24;
+  current_hour <= (elapsed_seconds / 3_600);
+  if (switch == 0)
+    current_hour <= current_hour % 24;
+  else
+    current_hour <= (current_hour % 12) + 1;
 
   // Calculate the FIRST 'H' in HH
   // For example: 19 % 10 = 9
