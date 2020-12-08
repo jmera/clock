@@ -168,10 +168,12 @@ always @ (elapsed_seconds) begin
   endcase
 
   current_hour = (elapsed_seconds / 3_600) % 24;
-  if (current_hour % 12 == 0)
-    current_hour = 12;
-  else
-    current_hour = current_hour % 12;
+  if (switch) begin
+    if (current_hour % 12 == 0)
+      current_hour = 12;
+    else
+      current_hour = current_hour % 12;
+  end
 
   // Calculate the FIRST 'H' in HH
   // For example: 19 % 10 = 9
