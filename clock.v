@@ -59,7 +59,7 @@ always @ (posedge clk) begin // or negedge reset
     elapsed_seconds <= 0;
   end
 
-  if (cycles == 50_000_000 / 60 / 60) begin
+  if (cycles == 50_000_000) begin
     // one second has passed
     elapsed_seconds <= elapsed_seconds + 1;
     // start counting the cycles for the next second
