@@ -167,11 +167,11 @@ always @ (elapsed_seconds) begin
       seg_data3 = 7'b0100100;
   endcase
 
-  current_hour <= (elapsed_seconds / 3_600);
-  if (switch == 0)
-    current_hour <= current_hour % 24;
+  current_hour <= (elapsed_seconds / 3_600) % 24;
+  if (current_hour % 12 == 0)
+    current_hour <= 12;
   else
-    current_hour <= (current_hour % 12) + 1;
+    current_hour <= current_hour % 12;
 
   // Calculate the FIRST 'H' in HH
   // For example: 19 % 10 = 9
