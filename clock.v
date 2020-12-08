@@ -5,9 +5,34 @@ module clock (
   output [6:0] led_b
 );
 
+// Variable to store the current second of the day; the number of elapsed
+// seconds since our program started.
+// Our clock program starts at time 00:00:00 (format is HH:MM:SS)
+
+// There are 60 seconds in a minute, 60 minutes in an hour, 24 hours in an day
+// To represent a 24 hr clock in seconds we need to be able to
+// represent the number of seconds in a day (60 * 60 * 24 = 86_400)
+// We need 17 bits (2 ^ 17 = 131_072) to represent the number of seconds in a day.
+// 2 ^ 16 = 65_536 is too small
 reg [16:0] elapsed_seconds;
+
+// Represents the current second (the 'SS' part of our clock)
+// 01 - 59 => We need 8 bits to represent 60 digits (2 ^ 8 = 64)
 reg [7:0] seconds;
-reg [26:0] cycles;
+
+// Represents the number of CPU cycles
+// On a 50MHz processor we perform 50_000_000 cycles per second
+// Said differently: Every 50_000_000 cycles = 1 second
+// We need 26 bits to count that many cycles
+// 2 ^ 26 = 67_108_864
+reg [25:0] cycles;
+
+// Represents which lights to turn on/off for each decimal digit in our clock
+//
+//  __
+// |__|
+// |__|
+//
 reg [6:0] seg_data0;
 reg [6:0] seg_data1;
 
@@ -18,15 +43,23 @@ always @ (posedge clk) begin // or negedge reset
   end
 
   if (cycles == 50_000_000) begin
-    cycles <= 0;
+    // one second has passed
     elapsed_seconds <= elapsed_seconds + 1;
+    // start counting the cycles for the next second
+    cycles <= 0;
   end
   else
+    // count this cycle
     cycles <= cycles + 1;
 end
 
 always @ (elapsed_seconds) begin
+  // calculate SS as a decimal digit (0-59)
   seconds <= elapsed_seconds % 60;
+
+  // Calculate the FIRST 'S' in SS
+  // For example: 36 % 10 = 6
+  // set seg_data0 to the proper binary representation of that number
   case (seconds % 10)
     0:
       seg_data0 = 7'b0000001;
@@ -50,6 +83,9 @@ always @ (elapsed_seconds) begin
       seg_data0 = 7'b0000100;
   endcase
 
+  // Calculate the SECOND 'S' in SS
+  // For example: 36 / 10 = 3
+  // set seg_data1 to the proper binary representation of that number
   case (seconds / 10)
     0:
       seg_data1 = 7'b0000001;
@@ -65,6 +101,10 @@ always @ (elapsed_seconds) begin
       seg_data1 = 7'b0100100;
   endcase
 end
+
+// seg_data0, seg_data1 hold the binary representation of each number in
+// memory. But we need those representations to be copied over to the output
+// device (I think, not 100% certain about this).
 
 assign led_a = seg_data0;
 assign led_b = seg_data1;
