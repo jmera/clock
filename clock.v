@@ -56,13 +56,13 @@ reg [6:0] seg_data5;
 always @ (posedge clk) begin // or negedge reset
   if (reset == 0) begin
     cycles <= 0;
-    elapsed_seconds <= 0;
+    elapsed_seconds <= 11 * 59 * 60;
   end
 
   if (elapsed_seconds == 86_400)
     elapsed_seconds <= 0;
 
-  if (cycles == (50_000_000 / 60 / 60)) begin
+  if (cycles == (50_000_000)) begin
     // one second has passed
     elapsed_seconds <= elapsed_seconds + 1;
     // start counting the cycles for the next second
@@ -168,7 +168,7 @@ always @ (elapsed_seconds) begin
   endcase
 
   current_hour = (elapsed_seconds / 3_600) % 24;
-  if (switch) begin
+  if (switch) begin // when switch is down, military time is activated
     if (current_hour % 12 == 0)
       current_hour = 12;
     else
