@@ -56,7 +56,7 @@ reg [6:0] seg_data5;
 always @ (posedge clk) begin // or negedge reset
   if (reset == 0) begin
     cycles <= 0;
-    elapsed_seconds <= 11 * 59 * 60;
+    elapsed_seconds <= (12 * 60 * 60) + (59 * 60);
   end
 
   if (elapsed_seconds == 86_400)
