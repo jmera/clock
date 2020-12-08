@@ -2,7 +2,9 @@ module clock (
   input clk,
   input reset,
   output [6:0] led_a,
-  output [6:0] led_b
+  output [6:0] led_b,
+  output [6:0] led_c,
+  output [6:0] led_d
 );
 
 // Variable to store the current second of the day; the number of elapsed
@@ -20,6 +22,10 @@ reg [16:0] elapsed_seconds;
 // 01 - 59 => We need 8 bits to represent 60 digits (2 ^ 8 = 64)
 reg [7:0] seconds;
 
+// Represents the current minute (the 'MM' part of our clock)
+// 01 - 59 => We need 8 bits to represent 60 digits (2 ^ 8 = 64)
+reg [7:0] minutes;
+
 // Represents the number of CPU cycles
 // On a 50MHz processor we perform 50_000_000 cycles per second
 // Said differently: Every 50_000_000 cycles = 1 second
@@ -35,6 +41,8 @@ reg [25:0] cycles;
 //
 reg [6:0] seg_data0;
 reg [6:0] seg_data1;
+reg [6:0] seg_data2;
+reg [6:0] seg_data3;
 
 always @ (posedge clk) begin // or negedge reset
   if (reset == 0) begin
@@ -100,6 +108,52 @@ always @ (elapsed_seconds) begin
     5:
       seg_data1 = 7'b0100100;
   endcase
+
+  minutes <= (elapsed_seconds / 60) % 60;
+
+  // Calculate the FIRST 'M' in MM
+  // For example: 25 % 10 = 5
+  // set seg_data2 to the proper binary representation of that number
+  case (minutes % 10)
+    0:
+      seg_data2 = 7'b0000001;
+    1:
+      seg_data2 = 7'b1001111;
+    2:
+      seg_data2 = 7'b0010010;
+    3:
+      seg_data2 = 7'b0000110;
+    4:
+      seg_data2 = 7'b1001100;
+    5:
+      seg_data2 = 7'b0100100;
+    6:
+      seg_data2 = 7'b0100000;
+    7:
+      seg_data2 = 7'b0001111;
+    8:
+      seg_data2 = 7'b0000000;
+    9:
+      seg_data2 = 7'b0000100;
+  endcase
+
+  // Calculate the SECOND 'M' in MM
+  // For example: 25 / 10 = 2
+  // set seg_data3 to the proper binary representation of that number
+  case (minutes / 10)
+    0:
+      seg_data3 = 7'b0000001;
+    1:
+      seg_data3 = 7'b1001111;
+    2:
+      seg_data3 = 7'b0010010;
+    3:
+      seg_data3 = 7'b0000110;
+    4:
+      seg_data3 = 7'b1001100;
+    5:
+      seg_data3 = 7'b0100100;
+  endcase
 end
 
 // seg_data0, seg_data1 hold the binary representation of each number in
@@ -108,5 +162,7 @@ end
 
 assign led_a = seg_data0;
 assign led_b = seg_data1;
+assign led_c = seg_data2;
+assign led_d = seg_data3;
 
 endmodule
